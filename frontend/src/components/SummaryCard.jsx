@@ -1,16 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const SummaryCard = ({ summary }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
-    <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem', borderLeft: '4px solid var(--accent-primary)' }}>
-      <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1rem' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontSize: '1.8rem' }}>✨</span> Synthesized Summary
-        </h2>
+    <div className="enterprise-panel" 
+         onClick={() => setIsExpanded(!isExpanded)}
+         style={{ 
+      padding: '2rem', 
+      marginBottom: '2rem', 
+      background: 'linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-elevated) 100%)',
+      border: '1px solid var(--border-color)',
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+      position: 'relative',
+      overflow: 'hidden',
+      cursor: 'pointer',
+      transition: 'all var(--transition-normal)'
+    }}>
+      {/* Decorative top accent line */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: 'var(--text-tertiary)' }}></div>
+      
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: isExpanded ? '1rem' : 0, borderBottom: isExpanded ? '1px solid var(--border-color)' : 'none', marginBottom: isExpanded ? '1.5rem' : 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ 
+            width: '36px', height: '36px', borderRadius: '8px', background: 'var(--bg-tertiary)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          </div>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em' }}>
+            AI Synthesis
+          </h2>
+        </div>
+        
+        <div style={{ color: 'var(--text-secondary)' }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
       </div>
-      <div style={{ fontSize: '1.05rem', lineHeight: 1.7, color: 'var(--text-primary)' }}>
-        <p style={{ whiteSpace: 'pre-wrap' }}>{summary}</p>
-      </div>
+      
+      {isExpanded && (
+        <div className="markdown-prose stagger-reveal" style={{ 
+          fontSize: '1rem', 
+          lineHeight: 1.8, 
+          color: 'var(--text-secondary)'
+        }}>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{summary}</ReactMarkdown>
+        </div>
+      )}
     </div>
   );
 };

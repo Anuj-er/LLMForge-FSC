@@ -1,13 +1,37 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+// Clean up model names from old data (e.g. "Puter (gpt-4o)" -> "GPT-4o")
+const cleanModelName = (name) => {
+  if (!name) return 'AI Model';
+  // Strip any "Puter (...)" wrapper from old DB records
+  const puterMatch = name.match(/^puter\s*\(([^)]+)\)$/i);
+  if (puterMatch) return cleanModelName(puterMatch[1].trim());
+
+  const s = name.toLowerCase();
+  if (s.includes('claude-3-5') || s.includes('claude-3.5')) return 'Claude 3.5 Sonnet';
+  if (s.includes('haiku')) return 'Claude 3 Haiku';
+  if (s.includes('claude')) return 'Claude';
+  if (s.includes('gpt-4o-mini')) return 'GPT-4o Mini';
+  if (s.includes('gpt-4o')) return 'GPT-4o';
+  if (s.includes('gpt-4')) return 'GPT-4';
+  if (s.includes('mixtral')) return 'Mixtral 8x7B';
+  if (s.includes('llama') || s.includes('meta')) return 'Meta Llama 3';
+  if (s.includes('gemini')) return 'Gemini 1.5';
+  if (s.includes('deepseek')) return 'DeepSeek';
+  return name;
+};
 
 const ModelResponseCard = ({ modelName, answer }) => {
   return (
-    <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', height: '100%', gap: '1rem' }}>
-      <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
-        <h3 style={{ fontWeight: 600, fontSize: '1.1rem', color: 'var(--accent-primary)' }}>{modelName}</h3>
+    <div className="breathtaking-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '500px', maxWidth: '100%', minWidth: 0, overflow: 'hidden' }}>
+      <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--text-primary)', boxShadow: '0 0 8px var(--text-primary)' }}></div>
+        <h3 style={{ fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-primary)' }}>{cleanModelName(modelName)}</h3>
       </div>
-      <div style={{ overflowY: 'auto', flex: 1, fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-        <p style={{ whiteSpace: 'pre-wrap' }}>{answer}</p>
+      <div className="markdown-prose stagger-reveal" style={{ overflowY: 'auto', overflowX: 'hidden', flex: 1, wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{answer}</ReactMarkdown>
       </div>
     </div>
   );

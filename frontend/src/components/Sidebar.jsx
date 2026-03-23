@@ -1,33 +1,70 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import Logo from '../components/Logo';
 
 
-const Sidebar = ({ history, loadingHistory, onSelectHistory, currentHistoryId, onNewChat, onDeleteHistory }) => {
+const Sidebar = ({ history, loadingHistory, onSelectHistory, currentHistoryId, onNewChat, onDeleteHistory, isCollapsed, setIsCollapsed }) => {
   const { user, logout } = useContext(AuthContext);
 
   return (
     <div style={{
-      width: '260px',
+      width: isCollapsed ? '60px' : '260px',
       height: '100%',
       background: 'var(--bg-secondary)',
       borderRight: '1px solid var(--border-color)',
       display: 'flex',
       flexDirection: 'column',
       padding: '1rem',
+      transition: 'width 0.3s ease-in-out',
+      overflow: 'hidden',
     }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <button 
-          className="btn btn-secondary" 
-          onClick={onNewChat}
-          style={{ width: '100%', justifyContent: 'flex-start' }}
+      <div style={{ padding: '0.5rem 0 1.5rem 0', display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between', gap: '0.5rem' }}>
+        {!isCollapsed && (
+          <div style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/'}>
+            <Logo width={28} height={28} />
+          </div>
+        )}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-secondary)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '0.35rem',
+            borderRadius: 'var(--border-radius-sm)',
+            transition: 'all var(--transition-fast)'
+          }}
+          onMouseOver={e => { e.currentTarget.style.background = 'var(--bg-tertiary)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+          onMouseOut={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
         >
-          <svg style={{marginRight: '8px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          New Chat
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }}>
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M9 3v18"/>
+          </svg>
         </button>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto' }}>
-        <h3 style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '1rem', paddingLeft: '0.5rem' }}>Previous Searches</h3>
+      {!isCollapsed && (
+        <div style={{ marginBottom: '2rem' }}>
+          <button 
+            className="btn btn-secondary" 
+            onClick={onNewChat}
+            style={{ width: '100%', justifyContent: 'flex-start' }}
+          >
+            <svg style={{marginRight: '8px'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Chat
+          </button>
+        </div>
+      )}
+
+      {!isCollapsed && (
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          <h3 style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '1rem', paddingLeft: '0.5rem' }}>Previous Searches</h3>
         
         {loadingHistory ? (
            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', paddingLeft: '0.5rem' }}>Loading...</p>
@@ -42,8 +79,8 @@ const Sidebar = ({ history, loadingHistory, onSelectHistory, currentHistoryId, o
                   display: 'flex',
                   alignItems: 'center',
                   background: currentHistoryId === item._id ? 'var(--bg-tertiary)' : 'transparent',
-                  borderRadius: '0.5rem',
-                  transition: 'background 0.2s',
+                  borderRadius: 'var(--border-radius-md)',
+                  transition: 'background var(--transition-fast)',
                   paddingRight: '0.5rem'
                 }}
                 onMouseEnter={(e) => { if(currentHistoryId !== item._id) e.currentTarget.style.background = 'var(--bg-tertiary)'; }}
@@ -81,7 +118,7 @@ const Sidebar = ({ history, loadingHistory, onSelectHistory, currentHistoryId, o
                     alignItems: 'center',
                     justifyContent: 'center',
                     padding: '0.25rem',
-                    borderRadius: '0.25rem',
+                    borderRadius: 'var(--border-radius-sm)',
                   }}
                   title="Delete Chat"
                   onMouseEnter={(e) => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; }}
@@ -93,11 +130,12 @@ const Sidebar = ({ history, loadingHistory, onSelectHistory, currentHistoryId, o
             ))}
           </div>
         )}
-      </div>
+        </div>
+      )}
 
-      <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', overflow: 'hidden' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--accent-primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+          <div style={{ width: '30px', height: '30px', borderRadius: 'var(--border-radius-sm)', background: 'var(--text-primary)', color: 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.875rem' }}>
             {user?.username?.[0]?.toUpperCase() || 'U'}
           </div>
           <span style={{ fontSize: '0.9rem', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
