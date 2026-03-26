@@ -19,8 +19,9 @@ const app = express();
 
 // Middleware
 app.use(helmet()); // Secure HTTP headers
+const ALLOWED_ORIGIN = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: ALLOWED_ORIGIN,
   credentials: true,
 }));
 app.use(express.json());
