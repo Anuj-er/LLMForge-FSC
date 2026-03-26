@@ -1,107 +1,139 @@
-<div align="center">
-  <img src="https://raw.githubusercontent.com/AkankshaMishra2/LLMForge/main/frontend/public/vite.svg" alt="LLMForge Logo" width="120" />
-</div>
+# LLMForge Enterprise
 
-<h1 align="center">LLMForge: The Ultimate AI Synthesis Platform</h1>
-
-<p align="center">
-  <strong>Compare responses from top-tier models like Gemini Flash and Groq's Llama 3 concurrently.</strong>
-</p>
-
-<p align="center">
-  <a href="#features">Features</a> •
-  <a href="#tech-stack">Tech Stack</a> •
-  <a href="#installation">Installation</a> •
-  <a href="#usage">Usage</a>
-</p>
+LLMForge is an enterprise-grade AI synthesis and multi-model reasoning platform. It allows users to query multiple state-of-the-art Large Language Models (LLMs) simultaneously and synthesize their responses into a single cohesive executive summary.
 
 ---
 
-## ⚡ Overview
+## 🏗️ Architecture & Sequential Data Flow
 
-LLMForge is a modern, high-performance web application designed to accelerate AI-driven workflows. Stop switching between tabs—LLMForge lets you query **Google Gemini 2.5 Flash** and **Groq Llama 3** _at the exact same time_. Get instant, side-by-side responses and a unified AI-generated conclusion summarizing the best of both worlds. 
+LLMForge completely bypasses the need for individual API keys for OpenAI or Anthropic. It uses **Puter.js** to natively fetch and execute concurrent requests against a managed cloud of 500+ premium AI models.
 
-Featuring a sleek, glassmorphic UI, full Dark Mode support, and continuous multi-turn chat sessions!
+```mermaid
+sequenceDiagram
+    participant User
+    participant React Frontend
+    participant Express Backend
+    participant Puter SDK
+    participant MongoDB
 
-## ✨ Features
-
-- **Concurrent Generation:** Fire off a single prompt and receive instant answers from Gemini and Groq simultaneously.
-- **Smart Synthesis:** An intelligent summarizer creates a final conclusion based on the combined output of all tested models.
-- **Continuous Chat Sessions:** Maintain context! The platform remembers your entire conversation history, just like ChatGPT, allowing for rich multi-turn dialogues.
-- **History Tracking:** All your past sessions are securely saved to MongoDB. Revisit old chats, read past conclusions, or seamlessly delete them.
-- **Premium UI/UX:** Built with beautiful CSS "glassmorphism", modern typography, smooth micro-animations, and full responsiveness across all devices.
-- **Dark/Light Mode:** First-class support for whatever theme you prefer.
-
-## 🛠️ Tech Stack
-
-LLMForge is built using the robust **MERN** stack:
-
-- **Frontend:** React, Vite, React Router DOM, Axios, standard CSS variables
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB (via Mongoose)
-- **Authentication:** JWT (JSON Web Tokens), bcryptjs
-- **APIs Integrated:** Groq API (Llama 3.1 8B), Google Gemini API (2.5 Flash)
-
-## 🚀 Installation
-
-Follow these steps to run LLMForge locally on your machine.
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/AkankshaMishra2/LLMForge.git
-cd comparellms
+    User->>React Frontend: Submits Query with Selected Models (e.g. GPT-4o, Claude 3.5)
+    React Frontend->>Express Backend: POST /api/query
+    Express Backend->>Express Backend: Authenticate Request via Secure JWT Payload
+    Express Backend->>Puter SDK: Fire concurrent headless model requests
+    Puter SDK-->>Express Backend: Return diverse model answers in parallel
+    Express Backend->>Puter SDK: Send answers back to request GPT-4o Executive Synthesis
+    Puter SDK-->>Express Backend: Return Final Formatted Synthesis
+    Express Backend->>MongoDB: Save complete interaction array to QueryHistory
+    Express Backend-->>React Frontend: Return formatted JSON payload
+    React Frontend-->>User: Display immersive glowing model cards
 ```
-
-### 2. Backend Setup
-Navigate to the backend directory and install dependencies:
-```bash
-cd backend
-npm install
-```
-
-Create a `.env` file in the `backend` folder and add your credentials:
-```env
-PORT=5000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-GEMINI_API_KEY=your_gemini_api_key
-GROQ_API_KEY=your_groq_api_key
-```
-
-Start the backend server:
-```bash
-npm run dev
-# Server will run on http://localhost:5000
-```
-
-### 3. Frontend Setup
-Open a new terminal, navigate to the frontend directory, and install dependencies:
-```bash
-cd frontend
-npm install
-```
-
-Create a `.env` file in the `frontend` folder to point to the backend:
-```env
-VITE_API_URL=http://localhost:5000/api
-```
-
-Start the Vite development server:
-```bash
-npm run dev
-# Client will run on http://localhost:5173
-```
-
-## 💻 Usage
-
-1. **Sign Up / Login:** Create an account to start saving your chat history.
-2. **Start a New Chat:** Type your prompt into the QueryBox on the Dashboard.
-3. **Compare & Analyze:** Watch as Groq and Gemini respond concurrently. Read the generated summary to quickly grasp the consensus.
-4. **Keep Chatting:** Send follow-up messages! The models will remember your previous turns in the session.
-5. **Manage History:** Use the sidebar to browse your past sessions or click the trash icon to delete them.
 
 ---
 
-<p align="center">
-  Built with ❤️ by an AI Enthusiast.
-</p>
+## 🗂️ Project Directory Structure
+
+```text
+LLMForge/
+├── backend/                  # Node.js + Express + Mongoose
+│   ├── config/               # MongoDB connection protocols
+│   ├── controllers/          # API Route Logic (Auth Controller & Queries)
+│   ├── middleware/           # JWT & Security interceptors
+│   ├── models/               # Database Schemas (User & QueryHistory)
+│   ├── routes/               # Express endpoint definitions
+│   ├── services/             # Puter.js SDK orchestrators (Dynamic LLM polling)
+│   ├── server.js             # Global security configurations (Helmet, RateLimit)
+│   └── .env.example          # Backend secret templates
+├── frontend/                 # React + Vite + Vanilla CSS
+│   ├── src/
+│   │   ├── components/       # Neon UI elements (QueryBox, Logo, ResponseCards)
+│   │   ├── context/          # Global React state (AuthContext)
+│   │   ├── pages/            # View routing logic (Dashboard, Home, Login)
+│   │   ├── services/         # Axios API interceptors
+│   │   └── styles/           # Global enterprise Glassmorphism system (main.css)
+│   └── .env.example          # Local frontend variables
+├── start-mac.sh              # 🚀 Custom macOS/Linux startup script
+├── start-win.bat             # 🚀 Custom Windows startup script
+└── README.md                 # You are here
+```
+
+---
+
+## 🗄️ MongoDB Database Structure Map
+
+The project relies on a strictly typed, fully mapped MongoDB architecture. Both schemas utilize native Mongoose `{ timestamps: true }` configurations to automatically log `createdAt` and `updatedAt` for backend execution analytics.
+
+```mermaid
+erDiagram
+    USER ||--o{ QUERY_HISTORY : "owns"
+    
+    USER {
+        ObjectId _id PK
+        String username "Unique, alphanumeric (3-20 chars)"
+        String email "Unique, valid standard format"
+        String password "Bcrypt hashed, validated for extreme strength"
+        Date createdAt
+        Date updatedAt
+    }
+
+    QUERY_HISTORY {
+        ObjectId _id PK
+        ObjectId userId FK "Reference bound to specific USER"
+        String title "Auto-generated snippet of prompt"
+        Array turns "Chronological interaction arrays"
+        Date createdAt
+        Date updatedAt
+    }
+
+    TURNS {
+        String query "User's specific text prompt"
+        Array responses "Mapped sub-document array of LLM answers"
+        String finalSummary "Generated comprehensive conclusion"
+        Date timestamp
+    }
+    
+    QUERY_HISTORY ||--o{ TURNS : "contains"
+```
+
+---
+
+## 🔒 Maximum API Security Features
+
+This repository is heavily fortified against modern web vulnerabilities. We protect the database using absolute pre-flight and backend validation.
+- **Helmet:** Protects against XSS injection and Clickjacking via strict HTTP headers globally.
+- **Express-Mongo-Sanitize:** Actively blocks malicious `$gt` or `$ne` NoSQL injection payloads globally across the entire Express router.
+- **Express Rate Limit:** Brute-force protection limits the entire API layer to `100 requests / 15 minutes` per IP address.
+- **Regex Payload Validation:** Double-layered regex logic occurring simultaneously on the React Frontend (`Login.jsx`) and Node Backend (`authController.js`) ensures malformed payloads are rejected instantly.
+
+---
+
+## 🚀 Setup & Local Development Commands
+
+LLMForge features custom automated startup protocols. **Do not run `npm run dev` manually!** Instead, follow these steps to securely configure your `.env` blocks and boot the environment arrays.
+
+### 1. Environment Configuration
+
+1. **For Backend**: Navigate to `backend/` and copy the `.env.example` file to `.env`. You **MUST** insert your MongoDB Cluster URI and your Puter Token for the engine to initialize.
+2. **For Frontend**: Navigate to `frontend/` and copy the `.env.example` file to `.env`. This links your Vite frontend to the local API structure.
+
+### 2. Install Dependencies
+
+You need to initialize the Node modules in both independent directories:
+```bash
+cd backend && npm install
+cd ../frontend && npm install
+cd ..
+```
+
+### 3. Automated Developer Boot
+We have embedded custom startup scripts directly into the root. These scripts automatically audit your `.env` files to guarantee they are not empty before allocating port bandwidth and spinning up the APIs. 
+
+**For macOS / Linux Systems:**
+```bash
+chmod +x start-mac.sh
+./start-mac.sh
+```
+
+**For Windows Systems:**
+```cmd
+start-win.bat
+```
