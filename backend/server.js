@@ -17,6 +17,9 @@ connectDB();
 
 const app = express();
 
+// Trust Render/cloud proxy so express-rate-limit reads IPs correctly
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(helmet()); // Secure HTTP headers
 const ALLOWED_ORIGIN = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
@@ -46,6 +49,8 @@ app.use((req, _res, next) => {
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { error: 'Too many requests from this IP, please try again after 15 minutes' },
 });
 app.use('/api', apiLimiter);
