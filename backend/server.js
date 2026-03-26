@@ -5,7 +5,7 @@ dotenv.config();
 
 const cors = require('cors');
 const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
+
 const rateLimit = require('express-rate-limit');
 
 const connectDB = require('./config/db');
@@ -25,7 +25,22 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
-app.use(mongoSanitize()); // Prevent NoSQL Injection
+// Prevent NoSQL Injection (Express 5 compatible — only sanitizes req.body)
+app.use((req, _res, next) => {
+  const sanitize = (obj) => {
+    if (obj && typeof obj === 'object') {
+      for (const key of Object.keys(obj)) {
+        if (key.startsWith('$') || key.includes('.')) {
+          delete obj[key];
+        } else {
+          sanitize(obj[key]);
+        }
+      }
+    }
+  };
+  sanitize(req.body);
+  next();
+});
 
 // Rate Limiting (100 requests per 15 mins)
 const apiLimiter = rateLimit({
