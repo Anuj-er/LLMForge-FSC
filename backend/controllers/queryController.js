@@ -2,16 +2,22 @@
 const { getLlmResponses, getAvailableModels } = require('../services/llmService');
 const { generateSummary } = require('../services/summaryService');
 const QueryHistory = require('../models/QueryHistory');
-const puter = require('@heyputer/puter.js').puter;
+let puter = null;
 
-if (process.env.PUTER_API_KEY) {
-  puter.setAuthToken(process.env.PUTER_API_KEY);
-}
+const getPuter = () => {
+  if (!puter) {
+    puter = require('@heyputer/puter.js').puter;
+    if (process.env.PUTER_API_KEY) {
+      puter.setAuthToken(process.env.PUTER_API_KEY);
+    }
+  }
+  return puter;
+};
 
 // Generate a short, smart title from the user's query using an LLM
 const generateTitle = async (query) => {
   try {
-    const response = await puter.ai.chat(
+    const response = await getPuter().ai.chat(
       `Summarize this user question into a short chat title (3-6 words max, no quotes, no punctuation at the end). Just return the title, nothing else.\n\nQuestion: ${query}`,
       { model: 'gpt-4o-mini', temperature: 0.3 }
     );

@@ -1,11 +1,17 @@
 // backend/services/summaryService.js
 // Generates a real synthesized summary by passing all model responses into an LLM
 
-const puter = require('@heyputer/puter.js').puter;
+let puter = null;
 
-if (process.env.PUTER_API_KEY) {
-  puter.setAuthToken(process.env.PUTER_API_KEY);
-}
+const getPuter = () => {
+  if (!puter) {
+    puter = require('@heyputer/puter.js').puter;
+    if (process.env.PUTER_API_KEY) {
+      puter.setAuthToken(process.env.PUTER_API_KEY);
+    }
+  }
+  return puter;
+};
 
 const normalizeContent = (content) => {
   if (!content) return null;
@@ -48,7 +54,7 @@ Please write a clear, well-structured synthesis that:
 
 Keep the tone professional and concise. Use markdown formatting for clarity.`;
 
-    const response = await puter.ai.chat(prompt, {
+    const response = await getPuter().ai.chat(prompt, {
       model: 'gpt-4o',
       temperature: 0.5,
     });

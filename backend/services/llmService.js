@@ -1,12 +1,17 @@
 // backend/services/llmService.js
 // Using @heyputer/puter.js for native SDK model access
 
-const puter = require('@heyputer/puter.js').puter;
+let puter = null;
 
-// Initialize SDK with the API Key if available
-if (process.env.PUTER_API_KEY) {
-  puter.setAuthToken(process.env.PUTER_API_KEY);
-}
+const getPuter = () => {
+  if (!puter) {
+    puter = require('@heyputer/puter.js').puter;
+    if (process.env.PUTER_API_KEY) {
+      puter.setAuthToken(process.env.PUTER_API_KEY);
+    }
+  }
+  return puter;
+};
 
 const fetchPuterResponse = async (query, previousTurns = [], modelName = 'claude-3.5-sonnet') => {
   try {
@@ -26,13 +31,13 @@ const fetchPuterResponse = async (query, previousTurns = [], modelName = 'claude
     let response;
     // The SDK sometimes accepts array of messages, or just a string prompt with options
     try {
-      response = await puter.ai.chat(messages, {
+      response = await getPuter().ai.chat(messages, {
         model: modelName,
         temperature: 0.7,
       });
     } catch {
       // Fallback if messages array is rejected (some versions of SDK might prefer string prompts)
-      response = await puter.ai.chat(query, {
+      response = await getPuter().ai.chat(query, {
         model: modelName,
         temperature: 0.7,
       });
@@ -118,7 +123,7 @@ const getLlmResponses = async (query, previousTurns = [], selectedModels = null)
 
 const getAvailableModels = async () => {
   try {
-    const models = await puter.ai.listModels();
+    const models = await getPuter().ai.listModels();
     return models.map(m => ({
       id: m.id,
       name: m.name || m.id,

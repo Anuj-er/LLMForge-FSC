@@ -23,7 +23,19 @@ export const ThemeProvider = ({ children }) => {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    if (!document.startViewTransition) {
+      setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+      return;
+    }
+    
+    // Create a native, smooth full-page animation 
+    document.startViewTransition(() => {
+      import('react-dom').then(({ flushSync }) => {
+        flushSync(() => {
+          setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+        });
+      });
+    });
   };
 
   return (
